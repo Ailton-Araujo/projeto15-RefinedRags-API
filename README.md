@@ -5,3 +5,6 @@ Participants:
 Ailton C. Araujo
 <br>
 Git:
+
+Renata Inacio
+Git: https://github.com/renatainacio
