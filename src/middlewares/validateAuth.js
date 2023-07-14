@@ -1,10 +1,10 @@
 import { ObjectId } from "mongodb";
 import db from "../database/database.connection.js";
+import jwt from "jsonwebtoken";
 
 export default async function validateAuth(req, res, next) {
   const authorization = req.headers.authorization;
   const token = authorization?.replace("Bearer ", "");
-
   if (!token) return res.sendStatus(401);
 
   try {
