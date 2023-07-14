@@ -34,7 +34,7 @@ export async function signin(req, res){
         await db.collection("sessions").deleteMany({userId: user._id});
         const session = await db.collection('sessions').insertOne({userId: user._id});
         delete user.password;
-        const token = jwt.sign({...user, sessionId: session.insertedId}, process.env.JWT_SECRET);
+        const token = jwt.sign({sessionId: session.insertedId}, process.env.JWT_SECRET);
         res.status(200).send(token);
     }catch(err){
         console.log(err.message);

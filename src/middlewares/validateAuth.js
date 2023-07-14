@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import db from "../database/database.connection.js";
 
 export default async function validateAuth(req, res, next) {
@@ -7,10 +8,13 @@ export default async function validateAuth(req, res, next) {
   if (!token) return res.sendStatus(401);
 
   try {
-    const user = jwt.verify(token, process.env.JWT_SECRET);
+    const session = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await db.collection("sessions").findOne({ _id: new ObjectId(session.sessionId) });
+    if (!user) return res.sendStatus(401);
+    delete user.password;
     res.locals.user = user;
   } catch (err) {
-    res.sendStatus(401);
+    res.status(500).send(err.message);
   }
   next();
 }
