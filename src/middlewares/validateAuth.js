@@ -7,11 +7,10 @@ export default async function validateAuth(req, res, next) {
   if (!token) return res.sendStatus(401);
 
   try {
-    const session = await db.collection("sessions").findOne({ token });
-    if (!session) return res.sendStatus(401);
-    res.locals.userId = session.userId;
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    res.locals.user = user;
   } catch (err) {
-    res.status(500).send(err.message);
+    res.sendStatus(401);
   }
   next();
 }
