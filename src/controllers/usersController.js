@@ -1,6 +1,6 @@
 import db from "../database/database.connection.js";
 import bcrypt from "bcrypt";
-import {v4 as uuid} from "uuid";
+import jwt from "jsonwebtoken";
 
 export async function signup(req, res){
     const {fullName, email, password, subscription} = req.body;
@@ -32,9 +32,10 @@ export async function signin(req, res){
         if(!correctPassword)
             return res.status(401).send("Invalid password");
         await db.collection("sessions").deleteMany({userId: user._id});
-        const token = uuid();
-        await db.collection('sessions').insertOne({token, userId: user._id});
-        res.status(200).send({token, name: user.name});
+        const session = await db.collection('sessions').insertOne({userId: user._id});
+        delete user.password;
+        const token = jwt.sign({...user, sessionId: session.insertedId}, process.env.JWT_SECRET);
+        res.status(200).send(token);
     }catch(err){
         console.log(err.message);
         return res.status(500).send("Internal server error");
