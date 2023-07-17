@@ -1,8 +1,11 @@
 import db from "../database/database.connection.js";
+import sgMail from "@sendgrid/mail";
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export async function postPurchase(req, res) {
   const { user } = res.locals;
-  const { addressInfo, productInfo } = req.body;
+  const { buyerInfo, addressInfo, productInfo } = req.body;
   try {
     const purchase = db
       .collection("purchases")
@@ -28,6 +31,23 @@ export async function postPurchase(req, res) {
         return res.status(500).send(error.message);
       }
     });
+
+    const msg = {
+      to: buyerInfo,
+      from: "refined_rags@outlook.com",
+      subject: "Confirmation of Purchase",
+      text: "Thank you for supporting my online store! Purchases both big and small help us keep our dream of providing the best quality products to our customers.",
+    };
+
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error(error);
+
+      if (error.response) {
+        console.error(error.response.body);
+      }
+    }
 
     return res.status(201).send("Purchase Complete");
   } catch (error) {
