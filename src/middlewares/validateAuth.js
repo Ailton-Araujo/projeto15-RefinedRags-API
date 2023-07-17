@@ -9,7 +9,9 @@ export default async function validateAuth(req, res, next) {
 
   try {
     const session = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await db.collection("sessions").findOne({ _id: new ObjectId(session.sessionId) });
+    const user = await db
+      .collection("sessions")
+      .findOne({ _id: new ObjectId(session.sessionId) });
     if (!user) return res.sendStatus(401);
     delete user.password;
     res.locals.user = user;
